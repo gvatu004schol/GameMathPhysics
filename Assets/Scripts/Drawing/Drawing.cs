@@ -1,34 +1,19 @@
 using UnityEngine;
-using UnityEditor;
 
-public class Drawing
+public static class Drawing
 {
-    public static void DrawVector(Vector3 pos, Vector3 vec, float thickness, float coneSize)
+    public static void DrawVector(Vector3 vector, Vector3 origin, float length = 1f, float arrowHeadLength = 0.25f, Color color = default)
     {
-        Vector3 end = pos + vec;
+        if (color == default) color = Color.white;
+        Gizmos.color = color;
 
-        Handles.DrawLine(pos, end, thickness);
+        Vector3 endPoint = origin + (vector.normalized * length);
+        Gizmos.DrawLine(origin, endPoint);
 
-        if (vec.sqrMagnitude < 0.000001f)
-        {
-            return;
-        }
+        Vector3 right = Quaternion.LookRotation(vector) * Quaternion.Euler(0, 180 + 20, 0) * new Vector3(0, 0, 1);
+        Vector3 left = Quaternion.LookRotation(vector) * Quaternion.Euler(0, 180 - 20, 0) * new Vector3(0, 0, 1);
 
-        float size = HandleUtility.GetHandleSize(end);
-
-        Vector3 conePosition =
-            end -
-            vec.normalized *
-            0.7071f *
-            coneSize *
-            size;
-
-        Handles.ConeHandleCap(
-            0,
-            conePosition,
-            Quaternion.LookRotation(vec),
-            size * coneSize,
-            EventType.Repaint
-        );
+        Gizmos.DrawLine(endPoint, endPoint + right * arrowHeadLength);
+        Gizmos.DrawLine(endPoint, endPoint + left * arrowHeadLength);
     }
 }

@@ -1,148 +1,102 @@
+#if UNITY_EDITOR
 using UnityEngine;
+using UnityEditor;
 
 public class LookAtTrigger : MonoBehaviour
 {
-    [Header("Settings")]
     [Range(0.1f, 20f)]
-    public float Radius = 5f;
+    public float radius = 5f;
 
     [Range(0f, 360f)]
-    public float FOVDegrees = 90f; // Horizontal angle (Left/Right)
+    public float FOVDegrees = 90f;
 
-    [Range(0f, 180f)]
-    public float VerticalFOVDegrees = 45f; // Vertical angle (Up/Down)
+    [SerializeField]
+    private float Threshold = 0.75f;
 
-    [Header("References")]
-    public GameObject Target;      
-    public GameObject LookingAt;   
+    public GameObject Target;
+    public GameObject LookingAt;
 
-    [Header("Debug State")]
     public bool Triggered = false;
 
-    private bool CheckTrigger()
+    private bool IsTriggered()
     {
-        if (Target == null || LookingAt == null) return false;
+        Threshold = Mathf.Cos(Mathf.Deg2Rad * FOVDegrees / 2f);
 
-        Vector3 triggerPos = transform.position;
-        Vector3 targetPos = Target.transform.position;
-        Vector3 lookingPos = LookingAt.transform.position;
+        Vector3 trigger = transform.position;
+        Vector3 target = Target.transform.position;
+        Vector3 looking = LookingAt.transform.position;
 
-        
-        // TEST 1: RADIAL TRIGGER (Distance)
-       
-        Vector3 trigger_to_target = targetPos - triggerPos;
-        if (trigger_to_target.magnitude > Radius) return false; // Too far away!
+        Vector3 trigger_to_target = target - trigger;
+        Vector3 trigger_to_lookat = looking - trigger;
 
-        
-        // CALCULATE LOCAL TARGET POSITION
-        
-        // We convert the target's world position into the wedge's "local space". 
-        // This means the center of the wedge is always (0,0,1).
-        Quaternion forwardRotation = Quaternion.LookRotation(lookingPos - triggerPos, Vector3.up);
-        Vector3 localTargetDir = Quaternion.Inverse(forwardRotation) * trigger_to_target.normalized;
+        // 1. Radial test
+        if (trigger_to_target.magnitude > radius)
+            return false;
 
-        
-        // TEST 2: LOOK-AT TRIGGER (Horizontal Angle)
-        
-        // Calculate the angle left or right from the center
-        float horizontalAngle = Mathf.Atan2(localTargetDir.x, localTargetDir.z) * Mathf.Rad2Deg;
-        if (Mathf.Abs(horizontalAngle) > FOVDegrees / 2f) return false;
+        // 2. LookAt test (Dot Product)
+        float dotp = Vector3.Dot(trigger_to_target.normalized, trigger_to_lookat.normalized);
 
-        
-        // TEST 3: HEIGHT TRIGGER (Vertical Angle)
-
-        // Calculate the angle up or down from the center
-        float verticalAngle = Mathf.Asin(localTargetDir.y) * Mathf.Rad2Deg;
-        if (Mathf.Abs(verticalAngle) > VerticalFOVDegrees / 2f) return false;
-
-        return true;
+        return dotp >= Threshold;
     }
 
     private void Update()
     {
-        Triggered = CheckTrigger();
+        // Ensure the trigger state updates during gameplay
+        if (Target != null && LookingAt != null)
+            Triggered = IsTriggered();
     }
 
     private void OnDrawGizmos()
     {
         if (Target == null || LookingAt == null) return;
 
-        Triggered = CheckTrigger();
+        Triggered = IsTriggered();
 
-        Vector3 triggerPos = transform.position;
-        Vector3 targetPos = Target.transform.position;
-        Vector3 lookingPos = LookingAt.transform.position;
+        if (Triggered)
+            Handles.color = Color.red;
+        else
+            Handles.color = Color.green;
 
-        Vector3 forwardDir = (lookingPos - triggerPos).normalized;
-        Quaternion forwardRotation = Quaternion.LookRotation(forwardDir, Vector3.up);
+        Handles.DrawWireDisc(transform.position, Vector3.up, radius);
 
-        Color wedgeColor = Triggered ? Color.red : Color.white;
-        Gizmos.color = wedgeColor;
+        Vector3 trigger = transform.position;
+        Vector3 target = Target.transform.position;
+        Vector3 looking = LookingAt.transform.position;
+        Vector3 trigger_to_target = target - trigger;
+        Vector3 trigger_to_lookat = looking - trigger;
 
-        //  THE 3D CHEESE WEDGE 
-
-        float hHalf = FOVDegrees / 2f;
-        float vHalf = VerticalFOVDegrees / 2f;
-
-        int hSteps = 10;
-        int vSteps = 5;
-
-        // 1. THE FRONT CURVED SURFACE (Grid)
-        // Horizontal arcs
-        for (int j = 0; j <= vSteps; j++)
+        // Arrow at trigger
+        if (trigger_to_lookat.sqrMagnitude > 0.0001f)
         {
-            float vAngle = Mathf.Lerp(-vHalf, vHalf, (float)j / vSteps);
-            Vector3 prevPoint = Vector3.zero;
-            for (int i = 0; i <= hSteps; i++)
-            {
-                float hAngle = Mathf.Lerp(-hHalf, hHalf, (float)i / hSteps);
-                Vector3 currentPoint = triggerPos + (forwardRotation * Quaternion.Euler(vAngle, hAngle, 0) * Vector3.forward * Radius);
-                if (i > 0) Gizmos.DrawLine(prevPoint, currentPoint);
-                prevPoint = currentPoint;
-            }
+            Color arrowColor = Triggered ? Color.red : Color.blue;
+            Drawing.DrawVector(trigger_to_lookat.normalized * 2f, trigger, 2f, 0.4f, arrowColor);
         }
 
-        // Vertical arcs
-        for (int i = 0; i <= hSteps; i++)
+        // Arrow at LookingAt
+        Drawing.DrawVector(LookingAt.transform.forward * 2f, looking, 2f, 0.4f, Color.cyan);
+
+        // Arrow at Target
+        Drawing.DrawVector(Target.transform.forward * 2f, target, 2f, 0.4f, Color.yellow);
+
+        // Vector from trigger to target
+        Drawing.DrawVector(trigger_to_target, trigger, 2f, 0.4f, Color.darkMagenta);
+
+        // Field of view boundaries
+        if (trigger_to_lookat.sqrMagnitude > 0.0001f)
         {
-            float hAngle = Mathf.Lerp(-hHalf, hHalf, (float)i / hSteps);
-            Vector3 prevPoint = Vector3.zero;
-            for (int j = 0; j <= vSteps; j++)
-            {
-                float vAngle = Mathf.Lerp(-vHalf, vHalf, (float)j / vSteps);
-                Vector3 currentPoint = triggerPos + (forwardRotation * Quaternion.Euler(vAngle, hAngle, 0) * Vector3.forward * Radius);
-                if (j > 0) Gizmos.DrawLine(prevPoint, currentPoint);
-                prevPoint = currentPoint;
-            }
+            Quaternion rotLeft = Quaternion.AngleAxis(-FOVDegrees / 2f, Vector3.up);
+            Quaternion rotRight = Quaternion.AngleAxis(FOVDegrees / 2f, Vector3.up);
+
+            Vector3 direction = radius * trigger_to_lookat.normalized;
+            Vector3 leftDir = rotLeft * direction;
+            Vector3 rightDir = rotRight * direction;
+
+            Color col = Triggered ? Color.red : Color.green;
+            Drawing.DrawVector(leftDir, trigger, 2f, 0.4f, col);
+            Drawing.DrawVector(rightDir, trigger, 2f, 0.4f, col);
+
+            Handles.DrawWireArc(trigger, Vector3.up, leftDir, FOVDegrees, radius);
         }
-
-        // 2. THE STRAIGHT SPOKES (From origin to the 4 corners)
-        Vector3 topLeft = triggerPos + (forwardRotation * Quaternion.Euler(-vHalf, -hHalf, 0) * Vector3.forward * Radius);
-        Vector3 topRight = triggerPos + (forwardRotation * Quaternion.Euler(-vHalf, hHalf, 0) * Vector3.forward * Radius);
-        Vector3 bottomLeft = triggerPos + (forwardRotation * Quaternion.Euler(vHalf, -hHalf, 0) * Vector3.forward * Radius);
-        Vector3 bottomRight = triggerPos + (forwardRotation * Quaternion.Euler(vHalf, hHalf, 0) * Vector3.forward * Radius);
-
-        Gizmos.DrawLine(triggerPos, topLeft);
-        Gizmos.DrawLine(triggerPos, topRight);
-        Gizmos.DrawLine(triggerPos, bottomLeft);
-        Gizmos.DrawLine(triggerPos, bottomRight);
-
-        // 3. THE MAGENTA LINES (Target to the 4 corners)
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawLine(targetPos, topLeft);
-        Gizmos.DrawLine(targetPos, topRight);
-        Gizmos.DrawLine(targetPos, bottomLeft);
-        Gizmos.DrawLine(targetPos, bottomRight);
-
-        // 4. THE RED CENTER LINE
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(triggerPos, triggerPos + (forwardDir * Radius));
-
-        // 5. DOTS
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(triggerPos, 0.15f);
-
-        Gizmos.color = Triggered ? Color.red : Color.green;
-        Gizmos.DrawSphere(targetPos, 0.2f);
     }
 }
+#endif

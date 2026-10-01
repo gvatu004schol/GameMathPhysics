@@ -145,7 +145,7 @@ Transform:
   m_GameObject: {fileID: 97016625}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.186, y: -0.06, z: 0.899}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -160,12 +160,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 97016625}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4dfb069cffb964a5498ce3be6143ef60, type: 3}
+  m_Script: {fileID: 11500000, guid: ca9da0d76fd514c48b32b7cce6250166, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LookAtTrigger
-  Radius: 7.63
-  FOVDegrees: 113
-  VerticalFOVDegrees: 34
+  m_EditorClassIdentifier: Assembly-CSharp::WedgeTrigger
+  radius: 5
+  height: 2
+  FOVDegrees: 90
+  Threshold: 0.70710677
   Target: {fileID: 810547881}
   LookingAt: {fileID: 451666027}
   Triggered: 0
@@ -194,7 +195,7 @@ Transform:
   m_GameObject: {fileID: 451666027}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: 0}
+  m_LocalPosition: {x: 0, y: -0, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -308,7 +309,7 @@ Transform:
   m_GameObject: {fileID: 810547881}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.97, y: 1.04, z: -8.63}
+  m_LocalPosition: {x: -1.83, y: 1.17, z: -3.42}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
