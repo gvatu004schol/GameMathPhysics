@@ -12,68 +12,92 @@ public class FlatDonut : MonoBehaviour
     [Range(3, 264)]
     public int Segments = 12;
 
+    private Mesh discmesh;
+    private readonly List<Vector3> verts = new List<Vector3>();
+    private readonly List<int> tri_indices = new List<int>();
+    private MeshFilter _mf;
+    private MeshRenderer _mr;
+
+#if UNITY_EDITOR
+    private bool _rebuildQueued = false;
+#endif
+
+    private void Start()
+    {
+        GenerateMesh();
+    }
+
+    private void OnValidate()
+    {
+#if UNITY_EDITOR
+        if (_rebuildQueued)
+            return;
+
+        _rebuildQueued = true;
+        UnityEditor.EditorApplication.delayCall += () =>
+        {
+            _rebuildQueued = false;
+            if (this != null)
+                GenerateMesh();
+        };
+#endif
+    }
+
     private void GenerateMesh()
     {
-        Mesh donutmesh = new Mesh();
+        if (discmesh == null)
+            discmesh = new Mesh();
+        else
+            discmesh.Clear();
 
-        List<Vector3> verts = new List<Vector3>();
-        List<int> trl_indices = new List<int>();
+        verts.Clear();
+        tri_indices.Clear();
 
         float delta_angle = 360f / Segments;
         Vector3 point = Vector3.zero;
-
         for (int i = 0; i < Segments; i++)
         {
-            float cos = Mathf.Cos(Mathf.Deg2Rad * delta_angle * i);
-            float sin = Mathf.Sin(Mathf.Deg2Rad * delta_angle * i);
+            point.x = Mathf.Cos(Mathf.Deg2Rad * (delta_angle * i));
+            point.y = Mathf.Sin(Mathf.Deg2Rad * (delta_angle * i));
 
-            point.x = InnerRadius * cos;
-            point.y = InnerRadius * sin;
-            point.z = 0f;
-            verts.Add(point);
-
-            point.x = OuterRadius * cos;
-            point.y = OuterRadius * sin;
-            point.z = 0f;
-            verts.Add(point);
+            verts.Add(point * InnerRadius);
+            verts.Add(point * OuterRadius);
         }
 
-        for (int i = 0; i <= Segments - 2; i++)
+        discmesh.SetVertices(verts);
+
+        for (int i = 0; i < Segments - 1; i++)
         {
-            int innerCurrent = 2 * i;
-            int outerCurrent = 2 * i + 1;
-            int innerNext = 2 * (i + 1);
-            int outerNext = 2 * (i + 1) + 1;
+            tri_indices.Add(2 * i);
+            tri_indices.Add(2 * i + 3);
+            tri_indices.Add(2 * i + 1);
 
-            trl_indices.Add(innerCurrent);
-            trl_indices.Add(outerNext);
-            trl_indices.Add(outerCurrent);
-
-            trl_indices.Add(innerCurrent);
-            trl_indices.Add(innerNext);
-            trl_indices.Add(outerNext);
+            tri_indices.Add(2 * i);
+            tri_indices.Add(2 * i + 2);
+            tri_indices.Add(2 * i + 3);
         }
 
-        int lastInner = 2 * (Segments - 1);
-        int lastOuter = 2 * (Segments - 1) + 1;
+        tri_indices.Add(verts.Count - 2);
+        tri_indices.Add(1);
+        tri_indices.Add(verts.Count - 1);
 
-        trl_indices.Add(lastInner);
-        trl_indices.Add(1);
-        trl_indices.Add(lastOuter);
+        tri_indices.Add(verts.Count - 2);
+        tri_indices.Add(0);
+        tri_indices.Add(1);
 
-        trl_indices.Add(lastInner);
-        trl_indices.Add(0);
-        trl_indices.Add(1);
+        discmesh.SetTriangles(tri_indices, 0);
+        discmesh.RecalculateNormals();
 
-        donutmesh.SetVertices(verts);
-        donutmesh.SetTriangles(trl_indices, 0);
-        donutmesh.RecalculateNormals();
+        if (_mf == null)
+            _mf = GetComponent<MeshFilter>();
+        if (_mf == null)
+            _mf = gameObject.AddComponent<MeshFilter>();
 
-        GetComponent<MeshFilter>().sharedMesh = donutmesh;
-    }
+        if (_mr == null)
+            _mr = GetComponent<MeshRenderer>();
+        if (_mr == null)
+            _mr = gameObject.AddComponent<MeshRenderer>();
 
-    private void OnDrawGizmos()
-    {
-        GenerateMesh();
+        _mf.sharedMesh = discmesh;
     }
 }
