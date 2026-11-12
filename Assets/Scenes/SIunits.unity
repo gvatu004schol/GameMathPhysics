@@ -397,10 +397,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4c34cddeb61e4d62b7d387aed638495, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NonUniformMotion
-  MovingObject: {fileID: 1689282532}
-  Pos0: {x: 0, y: 0, z: 0}
-  Vel0: {x: 12.5, y: 28.65, z: 0}
-  Accel: {x: -5.01, y: -48.6, z: 0}
+  Cannonball: {fileID: 1689282532}
+  StartPosition: {x: 0, y: 0, z: 0}
+  Gravity: {x: 0, y: -9.81, z: 0}
+  ElevationAngle: 9.14
+  MuzzleVelocity: 250
+  TargetDistance: 2000
+  ImpactDistance: 2001.7601
+  IsTargetHit: 1
 --- !u!4 &960191993
 Transform:
   m_ObjectHideFlags: 0
@@ -411,7 +415,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3.45309, y: 5.36662, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.12134034, y: 0.12134034, z: 0.12134034}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -571,7 +575,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 229.16885, y: 229.16885, z: 229.16885}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
