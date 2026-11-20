@@ -256,6 +256,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1308514752}
   - component: {fileID: 1308514753}
+  - component: {fileID: 1308514754}
+  - component: {fileID: 1308514755}
+  - component: {fileID: 1308514756}
   m_Layer: 0
   m_Name: PhysicsObject
   m_TagString: Untagged
@@ -294,13 +297,52 @@ MonoBehaviour:
   Mass: 1
   GravityValue: 9.81
   Gravity: 1
-  Force: {x: 0, y: 10, z: 0}
-  ImpulseForce: {x: 250, y: 35, z: 0}
-  ImpulseDuration: 0.06
   InverseMass: 0
   Position: {x: 0, y: 0, z: 0}
   Velocity: {x: 0, y: 0, z: 0}
   Acceleration: {x: 0, y: 0, z: 0}
+  _spring: {fileID: 0}
+--- !u!114 &1308514754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308514751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 959b49d988de84a79bad7836a9c1eb9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImpulseForses
+  Impulse: {x: 0, y: 0, z: 0}
+  Duration: 1
+--- !u!114 &1308514755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308514751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 851014a1fcdb54d4fbdab6b68553f6b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AirDragForces
+--- !u!114 &1308514756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308514751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3169804bceec146fe927c0766f7f0f0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpringForces
+  AnchorPoint: {fileID: 1828272734}
+  NormalLenght: 5
+  SpringConstant: 5
 --- !u!1 &1450488576
 GameObject:
   m_ObjectHideFlags: 0
@@ -619,6 +661,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1754372941}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1828272733
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1828272734}
+  m_Layer: 0
+  m_Name: AnchorPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1828272734
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1828272733}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -627,3 +700,4 @@ SceneRoots:
   - {fileID: 425816660}
   - {fileID: 1308514752}
   - {fileID: 1450488580}
+  - {fileID: 1828272734}
