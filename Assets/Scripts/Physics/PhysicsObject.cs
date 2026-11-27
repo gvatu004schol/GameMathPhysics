@@ -11,6 +11,11 @@ public class PhysicsObject : MonoBehaviour
     public float Mass = 1f;  // In kilograms!!!
     public float GravityValue = 9.81f;  // Default gravity (acceleration downwards)
     public bool Gravity = true;
+    
+    public Vector3 GetVelocity()
+    {
+    return Velocity;
+    }
 
 
     [Header("Forces")]
